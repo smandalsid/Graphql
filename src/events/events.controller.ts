@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Patch, Delete, Param, Body, HttpCode, ParseIntPipe, ValidationPipe } from "@nestjs/common";
+import { Controller, Get, Post, Patch, Delete, Param, Body, HttpCode, ParseIntPipe, ValidationPipe, Logger, NotFoundException } from "@nestjs/common";
 import { CreateEventDto } from "./create-event.dto";
 import { UpdateEventDto } from "./udpate-event.dto";
 import { Event } from "./event.entity";
@@ -7,6 +7,9 @@ import { InjectRepository } from "@nestjs/typeorm";
 
 @Controller('/events')
 export class EventsController {
+  private readonly logger = new Logger(EventsController.name);
+
+
   constructor(
     @InjectRepository(Event)
     private readonly repository: Repository<Event>
@@ -14,9 +17,12 @@ export class EventsController {
 
   @Get()
   async findAll() {
-    return await this.repository.find();
+    this.logger.log('Hit the findall route');
+    const events = await this.repository.find();
+    this.logger.debug(`Found ${events.length} events`);
+    return events;
   }
-
+  
   @Get('/practice')
   async practice() {
     return await this.repository.find({
@@ -33,19 +39,32 @@ export class EventsController {
       }
     });
   }
-
-  @Get(':id')
-  async findOne(@Param('id', ParseIntPipe) id: number) {
-    console.log(typeof id)
+  
+  @Get('/practice2')
+  async practice2() {
     return await this.repository.findOne({
-        where: {
-            id: id
-        }
+      where: {
+        id: 1
+      },
+      relations: ['attendees']
     });
   }
 
+  @Get(':id')
+  async findOne(@Param('id', ParseIntPipe) id: number) {
+    const event = await this.repository.findOne({
+      where: {
+        id: id
+      },
+    });
+
+    if (!event) {
+      throw new NotFoundException();
+    }
+  }
+
   @Post()
-  async create(@Body(ValidationPipe) input: CreateEventDto) {
+  async create(@Body() input: CreateEventDto) {
     return await this.repository.save({
       ...input,
       when: new Date(input.when)
@@ -55,7 +74,9 @@ export class EventsController {
   @Patch(':id')
   async update(@Param('id') id, @Body() input: UpdateEventDto) {
     const event = await this.repository.findOne(id);
-
+    if (!event) {
+      throw new NotFoundException();
+    }
     return await this.repository.save({
       ...event,
       ...input,
@@ -67,6 +88,10 @@ export class EventsController {
   @HttpCode(204)
   async remove(@Param('id') id) {
     const event = await this.repository.findOne(id);
+    if (!event) {
+      throw new NotFoundException();
+    }
     await this.repository.remove(event);
   }
+
 }
