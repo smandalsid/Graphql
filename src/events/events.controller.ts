@@ -1,9 +1,12 @@
-import { Controller, Get, Post, Patch, Delete, Param, Body, HttpCode, ParseIntPipe, ValidationPipe, Logger, NotFoundException } from "@nestjs/common";
-import { CreateEventDto } from "./create-event.dto";
-import { UpdateEventDto } from "./udpate-event.dto";
+import { Controller, Get, Post, Patch, Delete, Param, Body, HttpCode, ParseIntPipe, ValidationPipe, Logger, NotFoundException, Query, UsePipes } from "@nestjs/common";
+import { CreateEventDto } from "./input/create-event.dto";
+import { UpdateEventDto } from "./input/udpate-event.dto";
 import { Event } from "./event.entity";
 import { Like, MoreThan, Repository } from "typeorm";
 import { InjectRepository } from "@nestjs/typeorm";
+import { Attendee } from "./attendee.entity";
+import { EventsService } from "./events.service";
+import { ListEvents } from "./input/list.events";
 
 @Controller('/events')
 export class EventsController {
@@ -12,14 +15,24 @@ export class EventsController {
 
   constructor(
     @InjectRepository(Event)
-    private readonly repository: Repository<Event>
+    private readonly repository: Repository<Event>,
+    @InjectRepository(Attendee)
+    private readonly attendeerepository: Repository<Attendee>,
+    private readonly eventsService: EventsService
   ) { }
 
   @Get()
-  async findAll() {
-    this.logger.log('Hit the findall route');
-    const events = await this.repository.find();
-    this.logger.debug(`Found ${events.length} events`);
+  @UsePipes(new ValidationPipe({transform: true}))
+  async findAll(@Query() filter: ListEvents) {
+    const events = await this.eventsService.getEventsWithAttendeeCountFilteredPaginated(
+      filter,
+      {
+        total: true,
+        currentpage: filter.page,
+        limit: 2
+
+      }
+    );
     return events;
   }
   
@@ -42,25 +55,37 @@ export class EventsController {
   
   @Get('/practice2')
   async practice2() {
-    return await this.repository.findOne({
+    // return await this.repository.findOne({
+    //   where: {
+    //     id: 1
+    //   },
+    //   relations: ['attendees']
+    // });
+
+    const event = await this.repository.findOne({
       where: {
-        id: 1
+        id: 1,
       },
       relations: ['attendees']
     });
+    const attendee = new Attendee();
+    attendee.name = 'Using cascade';
+    // attendee.event = event;
+
+    event.attendees.push(attendee);
+
+    // await this.attendeerepository.save(attendee)
+    await this.repository.save(event);
+    return event;
   }
 
   @Get(':id')
   async findOne(@Param('id', ParseIntPipe) id: number) {
-    const event = await this.repository.findOne({
-      where: {
-        id: id
-      },
-    });
-
+    const event = await this.eventsService.getEvent(id);
     if (!event) {
       throw new NotFoundException();
     }
+    return event;
   }
 
   @Post()
@@ -87,11 +112,12 @@ export class EventsController {
   @Delete(':id')
   @HttpCode(204)
   async remove(@Param('id') id) {
-    const event = await this.repository.findOne(id);
-    if (!event) {
+    const result = await this.eventsService.deleteEvent(id)
+
+    if(result?.affected !==1) {
       throw new NotFoundException();
     }
-    await this.repository.remove(event);
+    
   }
 
 }
