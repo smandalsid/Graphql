@@ -1,27 +1,31 @@
-import { Column, Entity, JoinColumn, OneToOne, PrimaryGeneratedColumn } from "typeorm";
+import { Column, Entity, JoinColumn, OneToMany, OneToOne, PrimaryGeneratedColumn } from "typeorm";
 import { Profile } from "./profile.entity";
+import { Event } from "src/events/event.entity";
 
 @Entity()
 export class User {
-    @PrimaryGeneratedColumn()
-    id: number;
+  @PrimaryGeneratedColumn()
+  id: number;
 
-    @Column()
-    username: string;
+  @Column({ unique: true })
+  username: string;
 
-    @Column()
-    password: string;
+  @Column()
+  password: string;
 
-    @Column()
-    email: string;
+  @Column({ unique: true })
+  email: string;
 
-    @Column()
-    firstName: string;
+  @Column()
+  firstName: string;
 
-    @Column()
-    lastName: string;
+  @Column()
+  lastName: string;
 
-    @OneToOne(() => Profile)
-    @JoinColumn()
-    profile: Profile;
+  @OneToOne(() => Profile)
+  @JoinColumn()
+  profile: Profile;
+
+  @OneToMany(() => Event, (event) => event.organizer)
+  organized: Event[];
 }

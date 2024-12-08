@@ -5,6 +5,8 @@ import { Injectable, Logger } from "@nestjs/common";
 import { AttendeeAnswerEnum } from "./attendee.entity";
 import { ListEvents, WhenEventFilter } from "./input/list.events";
 import { paginate, PaginateOptions } from "src/pagination/paginator";
+import { CreateEventDto } from "./input/create-event.dto";
+import { User } from "src/auth/user.entity";
 
 @Injectable()
 export class EventsService {
@@ -95,6 +97,14 @@ export class EventsService {
             .andWhere('e.id = :id', { id });
         this.logger.debug(query.getSql());
         return await query.getOne();
+    }
+
+    public async createEvent(input: CreateEventDto, user: User): Promise<Event> {
+        return await this.eventsRepository.save({
+            ...input,
+            organizer: user,
+            when: new Date(input.when),
+        })
     }
 
     public async deleteEvent(id: number): Promise<DeleteResult> {
