@@ -3,9 +3,9 @@ import { CreateEventDto } from "./input/create-event.dto";
 import { UpdateEventDto } from "./input/udpate-event.dto";
 import { EventsService } from "./events.service";
 import { ListEvents } from "./input/list.events";
-import { CurrentUser } from "src/auth/current-user.decorator";
-import { User } from "src/auth/user.entity";
-import { AuthGaurdJwt } from "src/auth/auth-gaurd.jwt";
+import { CurrentUser } from "./../auth/current-user.decorator";
+import { User } from "./../auth/user.entity";
+import { AuthGaurdJwt } from "./../auth/auth-gaurd.jwt";
 
 @Controller('/events')
 @SerializeOptions({strategy: 'excludeAll'})

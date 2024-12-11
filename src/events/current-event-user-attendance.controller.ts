@@ -2,9 +2,9 @@ import { Body, ClassSerializerInterceptor, Controller, DefaultValuePipe, Get, No
 import { EventsService } from "./events.service";
 import { AttendeesService } from "./attendees.servics";
 import { CreateAttendeeDto } from "./input/create-attendee.dto";
-import { CurrentUser } from "src/auth/current-user.decorator";
-import { User } from "src/auth/user.entity";
-import { AuthGaurdJwt } from "src/auth/auth-gaurd.jwt"; 
+import { CurrentUser } from "./../auth/current-user.decorator";
+import { User } from "./../auth/user.entity";
+import { AuthGaurdJwt } from "./../auth/auth-gaurd.jwt"; 
 
 @Controller('events-attendance')
 @SerializeOptions({strategy: 'excludeAll'})
@@ -44,7 +44,7 @@ export class CurrentUserEventAttendanceController {
         return attendee;
     }
 
-    @Put('/:eventId')
+    @Put(':eventId')
     @UseGuards(AuthGaurdJwt)
     @UseInterceptors(ClassSerializerInterceptor)
     async createOrUpdate(   
