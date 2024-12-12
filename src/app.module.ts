@@ -17,7 +17,8 @@ import { AuthModule } from './auth/auth.module';
 		ConfigModule.forRoot({
 			isGlobal: true,
 			load: [ormConfig],
-			expandVariables: true
+			expandVariables: true,
+			envFilePath: `${process.env.NODE_ENV}.env`
 		}),
 		TypeOrmModule.forRootAsync({
 			useFactory: process.env.NODE_ENV !== 'production' ? ormConfig : ormConfigProd

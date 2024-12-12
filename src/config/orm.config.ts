@@ -16,5 +16,6 @@ export default registerAs('orm.config',
     password: process.env.DB_PASSWORD,
     database: process.env.DB_NAME,
     entities: [Event, Attendee, Subject, Teacher, Profile, User],
-    synchronize: true
+    synchronize: true,
+    dropSchema: Boolean(parseInt(process.env.DB_DROP_SCHEMA))
 }))
