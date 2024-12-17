@@ -6,7 +6,7 @@ import { AuthGaurdLocal } from "./auth-gaurd.local";
 import { AuthGaurdJwt } from "./auth-gaurd.jwt";
 
 @Controller('auth')
-@SerializeOptions({strategy: 'excludeAll'})
+@SerializeOptions({ strategy: 'excludeAll' })
 export class AuthController {
   constructor(
     private readonly authService: AuthService

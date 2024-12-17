@@ -7,6 +7,10 @@ import { JwtStrategy } from './jwt.strategy';
 import { LocalStrategy } from "./local.strategy";
 import { User } from "./user.entity";
 import { UsersController } from "./users.controller";
+import { AuthResolver } from "./auth.resolver";
+import { UserResolver } from "./user.resolver";
+import { UserService } from "./user.service";
+import { UserDoesNotExistConstraint } from "./validation/user-does-not-exists.constraint";
 
 @Module({
   imports: [
@@ -20,7 +24,7 @@ import { UsersController } from "./users.controller";
       })
     })
   ],
-  providers: [LocalStrategy, JwtStrategy, AuthService],
+  providers: [LocalStrategy, JwtStrategy, AuthService, AuthResolver, UserResolver, UserService, UserDoesNotExistConstraint],
   controllers: [AuthController, UsersController]
 })
 export class AuthModule { }
