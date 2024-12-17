@@ -5,7 +5,8 @@ import { User } from "./../auth/user.entity";
 import { Attendee } from "./../events/attendee.entity";
 import { Event } from "./../events/event.entity";
 import { Subject } from "./../school/subject.entity";
-import { Teacher } from "./../school/teacher.entity";
+import { Teacher } from "./../school/teacher.entity"; 
+import { Course } from "./../school/course.entity";
 
 export default registerAs('orm.config',
     (): TypeOrmModuleOptions => ({
@@ -15,7 +16,7 @@ export default registerAs('orm.config',
     username: process.env.DB_USER,
     password: process.env.DB_PASSWORD,
     database: process.env.DB_NAME,
-    entities: [Event, Attendee, Subject, Teacher, Profile, User],
+    entities: [Event, Attendee, Subject, Teacher, Profile, User, Course],
     synchronize: true,
     dropSchema: Boolean(parseInt(process.env.DB_DROP_SCHEMA))
 }))
